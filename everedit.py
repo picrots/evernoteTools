@@ -11,4 +11,22 @@ def getTodayTitle():
 def createTodayNote():
 	newNote = Types.Note()
 	newNote.title = getTodayTitle()
-	notestore.createNote(newNote)
+	#	check if note already exist
+	#
+	notes = findNotes("intitle:" + newNote.title)
+
+	#	create the note
+	if not notes:
+		notestore.createNote(newNote)
+	else:
+		print "There are " + str(len(notes)) + ' notes with the same title: "' + newNote.title + '"'
+
+def findNotes(words):
+	noteList = None
+	#	it's important to set the time zone
+	notefilter = NoteStore.NoteFilter(words=words, timeZone='Malaysia/Kuala_Lumpur')
+	noteListObj = notestore.findNotes(notefilter, 0, 100)
+	if noteListObj:
+		noteList = noteListObj.notes
+
+	return noteList
