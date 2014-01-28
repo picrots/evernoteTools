@@ -70,37 +70,46 @@ def findNotes(words):
 
 
 def getNoteContentByGuid(guid):
-	return notestore.getNoteContent(guid, 1, 0, 0, 0)
+    return notestore.getNoteContent(guid, 1, 0, 0, 0)
 
 def styleNote(noteObj):
-	#	getting content of the note
-	#
-	content = getNoteContentByGuid(noteObj.guid)
+    #   getting content of the note
+    #
+    content = getNoteContentByGuid(noteObj.guid)
 
-	#	styling
-	#
-	soup = BeautifulSoup(content)
-	#	style headers
-	h1_list = soup.findAll('h1')
-	h2_list = soup.findAll('h2')
-	h3_list = soup.findAll('h3')
-	h4_list = soup.findAll('h4')
-	h5_list = soup.findAll('h5')
-	h6_list = soup.findAll('h6')
-	h7_list = soup.findAll('h7')
-	h8_list = soup.findAll('h8')
-	h9_list = soup.findAll('h9')
+    #   styling
+    #
+    soup = BeautifulSoup(content)
+    #   style headers
+    h1_list = soup.findAll('h1')
+    h2_list = soup.findAll('h2')
+    h3_list = soup.findAll('h3')
+    h4_list = soup.findAll('h4')
+    h5_list = soup.findAll('h5')
+    h6_list = soup.findAll('h6')
+    h7_list = soup.findAll('h7')
+    h8_list = soup.findAll('h8')
+    h9_list = soup.findAll('h9')
 
+    h1_style = "font-family:Calibri;font-size:16.0pt;color:#1E4E79"
+    h2_style = "font-family:Calibri;font-size:14.0pt;color:#2E75B5"
+    h3_style = "font-family:Calibri;font-size:12.0pt;color:#5B9BD5"
 
+    for h1 in h1_list:
+        h1['style'] = h1_style
+    for h2 in h2_list:
+        h2['style'] = h2_style
+    for h3 in h3_list:
+        h3['style'] = h3_style
 
-	#	update note
-	#
-	noteObj.content = newContent
-	notestore.updateNote(noteObj)
+    #   update note
+    #
+    noteObj.content = soup.prettify()
+    notestore.updateNote(noteObj)
 
 
 def styleResentNotes(day=1):
-	pass
+    pass
 
 def styleTodayNote():
-	pass
+    pass
