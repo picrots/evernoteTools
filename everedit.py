@@ -2,6 +2,7 @@ from evernote.api.client import EvernoteClient
 from evernote.api.client import NoteStore
 import evernote.edam.type.ttypes as Types
 from datetime import date
+from BeautifulSoup import BeautifulSoup
 dev_token = "S=s6:U=dd19a:E=14b2ab1fbc1:C=143d300cfc4:P=1cd:A=en-devtoken:V=2:H=f0e919bdeea319e8e35730eebb9e3ef2"
 client = EvernoteClient(token=dev_token, sandbox=False)
 notestore = client.get_note_store()
@@ -66,3 +67,40 @@ def findNotes(words):
         noteList = noteListObj.notes
 
     return noteList
+
+
+def getNoteContentByGuid(guid):
+	return notestore.getNoteContent(guid, 1, 0, 0, 0)
+
+def styleNote(noteObj):
+	#	getting content of the note
+	#
+	content = getNoteContentByGuid(noteObj.guid)
+
+	#	styling
+	#
+	soup = BeautifulSoup(content)
+	#	style headers
+	h1_list = soup.findAll('h1')
+	h2_list = soup.findAll('h2')
+	h3_list = soup.findAll('h3')
+	h4_list = soup.findAll('h4')
+	h5_list = soup.findAll('h5')
+	h6_list = soup.findAll('h6')
+	h7_list = soup.findAll('h7')
+	h8_list = soup.findAll('h8')
+	h9_list = soup.findAll('h9')
+
+
+
+	#	update note
+	#
+	noteObj.content = newContent
+	notestore.updateNote(noteObj)
+
+
+def styleResentNotes(day=1):
+	pass
+
+def styleTodayNote():
+	pass
