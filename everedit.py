@@ -1,8 +1,13 @@
 from evernote.api.client import EvernoteClient
 from evernote.api.client import NoteStore
 import evernote.edam.type.ttypes as Types
+from pygments import highlight
+from pygments.lexers import PythonLexer
+from pygments.formatters import HtmlFormatter
 from datetime import date
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
+import re
+
 dev_token = "S=s6:U=dd19a:E=14b2ab1fbc1:C=143d300cfc4:P=1cd:A=en-devtoken:V=2:H=f0e919bdeea319e8e35730eebb9e3ef2"
 client = EvernoteClient(token=dev_token, sandbox=False)
 notestore = client.get_note_store()
@@ -79,21 +84,17 @@ def styleNote(noteObj):
 
     #   styling
     #
-    soup = BeautifulSoup(content)
+    soup = BeautifulSoup(content, "xml")
     #   style headers
     h1_list = soup.findAll('h1')
     h2_list = soup.findAll('h2')
     h3_list = soup.findAll('h3')
-    h4_list = soup.findAll('h4')
-    h5_list = soup.findAll('h5')
-    h6_list = soup.findAll('h6')
-    h7_list = soup.findAll('h7')
-    h8_list = soup.findAll('h8')
-    h9_list = soup.findAll('h9')
+    address_list = soup.findAll('address')
 
     h1_style = "font-family:Calibri;font-size:16.0pt;color:#1E4E79"
     h2_style = "font-family:Calibri;font-size:14.0pt;color:#2E75B5"
     h3_style = "font-family:Calibri;font-size:12.0pt;color:#5B9BD5"
+    address_style = "margin-left: 30px;font-family: 'courier new', courier, monospace;"
 
     for h1 in h1_list:
         h1['style'] = h1_style
@@ -101,10 +102,45 @@ def styleNote(noteObj):
         h2['style'] = h2_style
     for h3 in h3_list:
         h3['style'] = h3_style
+    for add in address_list:
+        add['style'] = address_style
+        add.append(soup.new_tag('br', clear="none"))
+        add.name = 'span'
+
+    #   styling codes in the note
+    #
+    # while(soup.address):
+    #     #   find lines of code belongs to same snippet.
+    #     done = 0
+    #     currentAddressTag = soup.address
+    #     backToBackTagList = [soup.address]
+    #     while not done:
+    #         nextTag = currentAddressTag.nextSibling
+    #         if not nextTag or nextTag.name != 'address':
+    #             done = 1
+    #             continue
+    #         currentAddressTag = nextTag
+    #         backToBackTagList.append(nextTag)
+
+    #     #   combine lines under one span tag
+    #     code = ""
+    #     for i, addressTag in enumerate(backToBackTagList):
+    #         code += addressTag.string + '\n'
+    #         if i > 0:
+    #             addressTag.extract()
+    #     #   highlight the code
+    #     code = highlight(code, PythonLexer(), HtmlFormatter(noclasses=True))
+    #     #   add all lines to the first address tag
+    #     backToBackTagList[0].clear()
+    #     s = BeautifulSoup(code)
+    #     backToBackTagList[0].append(s.div)
+    #     backToBackTagList[0].name = 'span'
 
     #   update note
     #
-    noteObj.content = soup.prettify()
+    newContent = soup.renderContents()
+    #   remove any class attribute
+    noteObj.content = re.sub('class=".*?" ', '', newContent)
     notestore.updateNote(noteObj)
 
 
