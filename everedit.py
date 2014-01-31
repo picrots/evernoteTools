@@ -1,14 +1,15 @@
 from evernote.api.client import EvernoteClient
 from evernote.api.client import NoteStore
 import evernote.edam.type.ttypes as Types
-from pygments import highlight
-from pygments.lexers import PythonLexer
-from pygments.formatters import HtmlFormatter
+# from pygments import highlight
+# from pygments.lexers import PythonLexer
+# from pygments.formatters import HtmlFormatter
 from datetime import date
 from bs4 import BeautifulSoup
 import re
 
 dev_token = "S=s6:U=dd19a:E=14b2ab1fbc1:C=143d300cfc4:P=1cd:A=en-devtoken:V=2:H=f0e919bdeea319e8e35730eebb9e3ef2"
+print "Connection to evernote..."
 client = EvernoteClient(token=dev_token, sandbox=False)
 notestore = client.get_note_store()
 
@@ -59,6 +60,7 @@ def createTodayNote():
         newNote.notebookGuid = notebook.guid
 
         #   create the note
+        print 'Creating note "' + newNote.title +'" ...'
         notestore.createNote(newNote)
     else:
         print "There are " + str(len(notes)) + ' notes with the same title: "' + newNote.title + '"'
@@ -80,10 +82,13 @@ def getNoteContentByGuid(guid):
 def styleNote(noteObj):
     #   getting content of the note
     #
+    print '\nStyling note "' + noteObj.title + '" with guid ' + noteObj.guid
+    print 'Fetching note contents ...'
     content = getNoteContentByGuid(noteObj.guid)
 
     #   styling
     #
+    print 'Styling ...'
     soup = BeautifulSoup(content, "xml")
     #   style headers
     h1_list = soup.findAll('h1')
@@ -107,7 +112,7 @@ def styleNote(noteObj):
         add.append(soup.new_tag('br', clear="none"))
         add.name = 'span'
 
-    #   styling codes in the note
+    #   codes highlighting
     #
     # while(soup.address):
     #     #   find lines of code belongs to same snippet.
@@ -141,11 +146,23 @@ def styleNote(noteObj):
     newContent = soup.renderContents()
     #   remove any class attribute
     noteObj.content = re.sub('class=".*?" ', '', newContent)
-    notestore.updateNote(noteObj)
+    print 'Updating ...'
+    if noteObj.content != content:
+        notestore.updateNote(noteObj)
+    else:
+        print "No Changes to the note!"
+    print "Done."
 
 
-def styleResentNotes(day=1):
-    pass
+def styleRecentNotes(dateTerm="today"):
+    print "Search for list of recent notes ..."
+    noteList = findNotes("updated:" + str(dateTerm))
+    for note in noteList:
+        styleNote(note)
 
 def styleTodayNote():
-    pass
+    title = getTodayTitle()
+    noteList = findNotes("intitle:" + str(title))
+    if noteList:
+        note = noteList[0]
+        styleNote(note)
