@@ -1,14 +1,19 @@
 from evernote.api.client import EvernoteClient
 from evernote.api.client import NoteStore
 import evernote.edam.type.ttypes as Types
-# from pygments import highlight
-# from pygments.lexers import PythonLexer
-# from pygments.formatters import HtmlFormatter
 from datetime import date
 from bs4 import BeautifulSoup
+import os
 import re
 
-dev_token = "S=s6:U=dd19a:E=14b2ab1fbc1:C=143d300cfc4:P=1cd:A=en-devtoken:V=2:H=f0e919bdeea319e8e35730eebb9e3ef2"
+dev_token = "your dev token"
+
+# Get dev_token from file
+varFileLocation = os.path.join(os.path.dirname(__file__), 'var.py')
+if os.path.exists(varFileLocation):
+    from evernoteTools import var
+    dev_token = var.id
+
 print "Connection to evernote..."
 client = EvernoteClient(token=dev_token, sandbox=False)
 notestore = client.get_note_store()
@@ -48,7 +53,7 @@ def createTodayNote():
 
     #   check if note already exist
     #
-    notes = findNotes("intitle:" + newNote.title)
+    notes = findNotes('intitle:"' + newNote.title + '"')
 
     #   create the note
     if not notes:
