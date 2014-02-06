@@ -21,10 +21,12 @@ notestore = client.get_note_store()
 #   global variables
 notebookCache = {}
 
+
 def getTodayTitle():
     today = date.today()
     date_string = today.strftime("%a, %d %b %Y")  # 'Sun, 15 Dec 2013'
     return date_string
+
 
 def getNotebook(notebookName, resetCache=False):
     global notebookCache
@@ -47,6 +49,7 @@ def getNotebook(notebookName, resetCache=False):
             requeestedNotebook = notebook
     return requeestedNotebook
 
+
 def createTodayNote():
     newNote = Types.Note()
     newNote.title = getTodayTitle()
@@ -65,15 +68,19 @@ def createTodayNote():
         newNote.notebookGuid = notebook.guid
 
         #   create the note
-        print 'Creating note "' + newNote.title +'" ...'
+        print 'Creating note "' + newNote.title + '" ...'
         notestore.createNote(newNote)
     else:
-        print "There are " + str(len(notes)) + ' notes with the same title: "' + newNote.title + '"'
+        print ("There are " + str(len(notes)) + ' notes with the same title: "'
+               + newNote.title + '"')
+
 
 def findNotes(words):
     noteList = None
     #   it's important to set the time zone
-    notefilter = NoteStore.NoteFilter(words=words, timeZone='Malaysia/Kuala_Lumpur')
+    notefilter = NoteStore.NoteFilter(
+        words=words, timeZone='Malaysia/Kuala_Lumpur')
+
     noteListObj = notestore.findNotes(notefilter, 0, 100)
     if noteListObj:
         noteList = noteListObj.notes
@@ -83,6 +90,7 @@ def findNotes(words):
 
 def getNoteContentByGuid(guid):
     return notestore.getNoteContent(guid, 1, 0, 0, 0)
+
 
 def styleNote(noteObj):
     #   getting content of the note
@@ -104,7 +112,8 @@ def styleNote(noteObj):
     h1_style = "font-family:Calibri;font-size:16.0pt;color:#1E4E79"
     h2_style = "font-family:Calibri;font-size:14.0pt;color:#2E75B5"
     h3_style = "font-family:Calibri;font-size:12.0pt;color:#5B9BD5"
-    address_style = "margin-left: 30px;font-family: 'courier new', courier, monospace;"
+    address_style = "margin-left: 30px;font-family: 'courier new', \
+                     courier, monospace;"
 
     for h1 in h1_list:
         h1['style'] = h1_style
@@ -114,6 +123,7 @@ def styleNote(noteObj):
         h3['style'] = h3_style
     for add in address_list:
         add['style'] = address_style
+        add.wrap(soup.new_tag("div"))
         add.append(soup.new_tag('br', clear="none"))
         add.name = 'span'
 
@@ -164,6 +174,7 @@ def styleRecentNotes(dateTerm="today"):
     noteList = findNotes("updated:" + str(dateTerm))
     for note in noteList:
         styleNote(note)
+
 
 def styleTodayNote():
     title = getTodayTitle()
